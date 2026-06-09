@@ -1,0 +1,59 @@
+{% extends 'maxway_admin/base.html' %}
+{% load static %}
+{% block content %}
+ <div class="page-container">
+    <!-- HEADER DESKTOP-->
+    {%include 'maxway_admin/userbar.html'%}
+    <!-- HEADER DESKTOP-->
+
+    <!-- MAIN CONTENT-->
+    <div class="main-content">
+        <div class="section__content section__content--p30">
+            <div class="row">
+                <div class="col-md-12">
+                        <!-- DATA TABLE-->
+                        <div class="table-responsive m-b-40">
+                            <table class="table table-borderless table-data3">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Customer</th>
+                                        <th>Status</th>
+                                        <th>Payment type</th>
+                                        <th>Address</th>
+                                        <th>Created at</th>
+                                        <th>More info</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ order.customer }}</td>
+                                        <td>{{ order.status }}</td>
+                                        <td>{{ order.payment_type }}</td>
+                                        <td>{{ order.address }}</td>
+                                        <td>{{ order.created_at }}</td>
+                                        <td>
+                                            <div class="table-data-feature">
+                                                <a class="item" data-toggle="tooltip" href="{% url 'order_product_list' id=order.id %}" data-placement="top" title="" data-original-title="More Info">
+                                                    <i class="zmdi zmdi-eye text-primary"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- END DATA TABLE-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END MAIN CONTENT-->
+    <!-- END PAGE CONTAINER-->
+    </div>
+{% endblock %}

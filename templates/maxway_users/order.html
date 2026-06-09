@@ -1,0 +1,733 @@
+<!DOCTYPE html> {% load static %} {% load humanize %}
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyurtma berish | MaxWay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'maxway_users/css/style.css' %}">
+    <style>
+        :root {
+            --yellow: #F1B301;
+            --yellow-glow: rgba(241,179,1,0.18);
+            --purple: #800A7A;
+            --dark: #18171C;
+            --dark2: #22202A;
+            --surface: #1E1C24;
+            --surface2: #28262F;
+            --border: rgba(255,255,255,0.07);
+            --text: #F0EEF5;
+            --text-dim: rgba(240,238,245,0.5);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --tr: 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+        /* HEADER */
+        .o-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .h-phone {
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-dim); font-size: 13px; text-decoration: none;
+            transition: color var(--tr);
+        }
+        .h-phone:hover { color: var(--yellow); }
+        .h-right { display: flex; align-items: center; gap: 16px; }
+        .cart-btn {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--yellow); color: var(--dark);
+            border: none; border-radius: 50px; padding: 10px 20px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+            cursor: pointer; transition: all var(--tr);
+        }
+        .cart-btn:hover { background: #ffc929; transform: translateY(-1px); box-shadow: 0 6px 20px var(--yellow-glow); }
+        .cart-badge {
+            background: var(--dark); color: var(--yellow);
+            border-radius: 50px; font-size: 11px; font-weight: 800;
+            padding: 2px 8px; min-width: 20px; text-align: center;
+        }
+
+        /* PAGE */
+        .o-page {
+            max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px;
+            display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start;
+        }
+        @media (max-width: 860px) { .o-page { grid-template-columns: 1fr; } }
+
+        .page-hero { grid-column: 1 / -1; margin-bottom: 8px; }
+        .page-hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.5px;
+        }
+        .page-hero h1 span { color: var(--yellow); }
+        .page-hero p { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
+
+        /* FORM CARDS */
+        .f-sections { display: flex; flex-direction: column; gap: 20px; }
+        .f-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 28px;
+            transition: border-color var(--tr);
+        }
+        .f-card:focus-within { border-color: rgba(241,179,1,0.3); }
+
+        .sec-label {
+            font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase; color: var(--yellow);
+            margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+        }
+        .sec-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+        .f-group { margin-bottom: 14px; }
+        .f-group:last-child { margin-bottom: 0; }
+        .f-label { font-size: 12px; font-weight: 500; color: var(--text-dim); margin-bottom: 6px; display: block; }
+        .f-input {
+            width: 100%; background: var(--dark2); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 13px 16px;
+            color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px;
+            transition: all var(--tr); outline: none;
+            text-align: left; /* override global input centering */
+            margin-left: 0; /* override global input left margin */
+        }
+        .f-input::placeholder { color: rgba(240,238,245,0.28); }
+        .f-input:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-glow); background: var(--surface2); }
+        textarea.f-input { resize: vertical; min-height: 90px; }
+
+        /* Phone verified indicator */
+        .phone-wrap { position: relative; }
+        .phone-ok {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            color: #4ade80; font-size: 18px; display: none; font-weight: 700;
+        }
+        .phone-wrap.verified .phone-ok { display: block; }
+
+        /* Second div reveal */
+        #second_div { display: none; }
+        #second_div.show { display: contents; }
+
+        /* Payment */
+        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 480px) { .pay-grid { grid-template-columns: 1fr; } }
+        .pay-opt { position: relative; }
+        .pay-opt input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .pay-lbl {
+            display: flex; flex-direction: column; gap: 8px; padding: 16px;
+            background: var(--dark2); border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); cursor: pointer; transition: all var(--tr);
+        }
+        .pay-lbl:hover { border-color: rgba(241,179,1,0.4); }
+        .pay-opt input[type="radio"]:checked + .pay-lbl {
+            border-color: var(--yellow); background: rgba(241,179,1,0.06);
+            box-shadow: 0 0 0 3px var(--yellow-glow);
+        }
+        .pay-lbl-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .pay-icon { font-size: 22px; }
+        .pay-check {
+            width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center; transition: all var(--tr);
+        }
+        .pay-opt input:checked + .pay-lbl .pay-check { border-color: var(--yellow); background: var(--yellow); }
+        .pay-opt input:checked + .pay-lbl .pay-check::after {
+            content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--dark);
+        }
+        .pay-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+        .pay-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
+        /* Submit */
+        .sub-btn {
+            width: 100%; background: var(--yellow); color: var(--dark); border: none;
+            border-radius: var(--radius-sm); padding: 16px;
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: all var(--tr); margin-top: 4px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .sub-btn:hover { background: #ffc929; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(241,179,1,0.35); }
+
+        /* SIDEBAR */
+        .o-sidebar { position: sticky; top: 84px; }
+        .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .sum-head {
+            padding: 18px 22px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .sum-head-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+        .sum-cnt { background: var(--yellow); color: var(--dark); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 50px; }
+        .sum-items {
+            max-height: 340px; overflow-y: auto; padding: 14px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .sum-items::-webkit-scrollbar { width: 3px; }
+        .sum-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .sum-item {
+            display: flex; gap: 12px; align-items: center;
+            padding: 10px; background: var(--dark2); border-radius: var(--radius-sm);
+            animation: slideUp 0.25s ease-out both;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .sum-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--surface2); flex-shrink: 0; }
+        .sum-info { flex: 1; min-width: 0; }
+        .sum-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sum-sub { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        .sum-price { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--yellow); white-space: nowrap; }
+        .sum-empty { text-align: center; padding: 28px 12px; color: var(--text-dim); font-size: 13px; }
+        .sum-foot { padding: 16px 22px; border-top: 1px solid var(--border); }
+        .sum-total-row { display: flex; justify-content: space-between; align-items: center; }
+        .sum-total-lbl { font-size: 13px; color: var(--text-dim); }
+        .sum-total-price { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--yellow); }
+        .sum-total-price span { font-size: 13px; font-weight: 600; }
+        .clr-btn {
+            width: 100%; background: transparent; border: 1px solid var(--border);
+            color: var(--text-dim); border-radius: var(--radius-sm); padding: 10px;
+            font-size: 13px; cursor: pointer; margin-top: 12px; transition: all var(--tr);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .clr-btn:hover { border-color: rgba(255,80,80,0.4); color: #ff6b6b; background: rgba(255,80,80,0.05); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,13,20,0.88); backdrop-filter: blur(8px);
+            z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        @media (min-width: 600px) { .modal-overlay { align-items: center; } }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px 24px 0 0; width: 100%; max-width: 520px;
+            max-height: 88vh; display: flex; flex-direction: column;
+            transform: translateY(40px); transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        @media (min-width: 600px) {
+            .modal-box { border-radius: 24px; transform: translateY(20px) scale(0.97); }
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+        .modal-drag { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+        @media (min-width: 600px) { .modal-drag { display: none; } }
+        .modal-head {
+            padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+        .modal-x {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--dark2);
+            border: 1px solid var(--border); color: var(--text-dim);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: all var(--tr); line-height: 1;
+        }
+        .modal-x:hover { background: var(--surface2); color: var(--text); }
+        .modal-body {
+            flex: 1; overflow-y: auto; padding: 14px 22px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .modal-body::-webkit-scrollbar { width: 3px; }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .modal-item {
+            display: flex; gap: 14px; align-items: center;
+            padding: 14px; background: var(--dark2); border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .modal-img { width: 58px; height: 58px; border-radius: 10px; object-fit: cover; background: var(--surface2); flex-shrink: 0; }
+        .modal-info { flex: 1; min-width: 0; }
+        .modal-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .modal-desc { font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .modal-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .modal-qty { font-size: 12px; color: var(--text-dim); background: var(--surface); padding: 3px 10px; border-radius: 50px; }
+        .modal-price { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--yellow); }
+        .modal-empty { text-align: center; padding: 40px 0; color: var(--text-dim); }
+        .modal-empty p { font-size: 15px; margin-top: 12px; }
+        .modal-empty small { font-size: 12px; opacity: 0.6; margin-top: 4px; display: block; }
+        .modal-foot { padding: 14px 22px 22px; border-top: 1px solid var(--border); flex-shrink: 0; }
+        .modal-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .modal-total-lbl { font-size: 14px; color: var(--text-dim); }
+        .modal-total-amt { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--yellow); }
+        .modal-total-amt span { font-size: 13px; font-weight: 600; }
+        .modal-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .modal-clr {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-dim); border-radius: var(--radius-sm); padding: 12px;
+            font-size: 14px; cursor: pointer; transition: all var(--tr); font-family: 'DM Sans', sans-serif;
+        }
+        .modal-clr:hover { border-color: rgba(255,80,80,0.4); color: #ff6b6b; }
+        .modal-close-act {
+            background: var(--yellow); border: none; color: var(--dark);
+            border-radius: var(--radius-sm); padding: 12px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+            cursor: pointer; transition: all var(--tr);
+        }
+        .modal-close-act:hover { background: #ffc929; }
+
+        /* Shake animation */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)} 80%{transform:translateX(-3px)} }
+        .shake { animation: shake 0.4s ease; }
+
+        /* SUCCESS MODAL */
+        .success-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,13,20,0.95); backdrop-filter: blur(12px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .success-modal-overlay.show { opacity: 1; pointer-events: all; }
+
+        .success-modal-box {
+            background: var(--surface); border: 2px solid var(--yellow);
+            border-radius: 28px; width: 100%; max-width: 420px;
+            padding: 48px 32px; text-align: center;
+            transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
+            box-shadow: 0 25px 50px rgba(241,179,1,0.25);
+        }
+        .success-modal-overlay.show .success-modal-box { transform: scale(1); }
+
+        .success-checkmark {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--yellow), #ffc929);
+            border-radius: 50%; margin: 0 auto 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 48px; color: var(--dark);
+            animation: popIn 0.6s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        @keyframes popIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        .success-title {
+            font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800;
+            color: var(--yellow); margin-bottom: 12px; letter-spacing: -0.5px;
+        }
+        .success-subtitle {
+            font-size: 14px; color: var(--text-dim); margin-bottom: 24px; line-height: 1.6;
+        }
+        .success-order-id {
+            background: var(--dark2); border: 1px solid var(--border);
+            padding: 12px 16px; border-radius: var(--radius-sm);
+            font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+            color: var(--yellow); margin-bottom: 28px;
+            word-break: break-word;
+        }
+        .success-btn {
+            background: var(--yellow); color: var(--dark);
+            border: none; border-radius: var(--radius-sm); padding: 14px 28px;
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
+            cursor: pointer; transition: all var(--tr);
+            width: 100%;
+        }
+        .success-btn:hover { background: #ffc929; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(241,179,1,0.35); }
+
+        @media (max-width: 480px) {
+            .o-header { padding: 0 16px; }
+            .o-page { padding: 24px 16px 40px; }
+            .f-card { padding: 18px; }
+            .success-modal-box { padding: 32px 20px; }
+            .success-title { font-size: 22px; }
+        }
+    </style>
+</head>
+<body data-home-url="{% url 'home_page' %}" data-order-url="{% url 'order_page' %}">
+
+<!-- HEADER -->
+<header class="o-header">
+    <div class="logo">
+        <a href="{% url 'home_page' %}">
+            <svg width="40" height="42" viewBox="0 0 52 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M21.7069 22.7882C21.5535 17.3355 21.0296 12.6432 22.8452 7.34708C23.0941 6.27936 22.2932 5.68514 20.4424 5.56435C18.5883 5.64734 16.7356 7.53692 14.8847 11.2328C14.3464 12.237 14.0487 12.1964 13.9914 11.1111C14.4888 5.81938 14.7376 3.17346 14.7376 3.17346C14.6761 -0.140761 13.1843 -0.859045 10.2623 1.01852C8.58067 2.09902 7.46691 3.5192 6.28655 5.11882C3.68498 8.64472 1.89998 12.575 0.931799 16.9095C0.26551 19.8928 -0.673105 26.7431 0.723899 29.4765C1.55348 31.0993 5.02377 33.6504 6.30217 31.5445C6.54367 31.1203 6.51192 29.9628 6.41003 28.6801C6.10511 24.8405 5.95256 22.3586 6.62683 18.4354C7.09983 15.6841 7.88481 13.0675 8.98227 10.5858C9.42437 9.52302 10.9752 7.20227 10.7926 10.0514C10.7769 14.2211 11.0654 17.1007 11.6583 18.6899C12.2515 20.0301 12.9133 19.937 13.6437 18.4108C14.5159 15.9046 15.3978 13.7411 16.2891 11.9203C16.6604 11.2359 17.0627 10.5773 17.4963 9.94462C18.0474 9.0296 18.1945 9.32192 17.9373 10.8216C17.5783 13.1397 15.9879 23.8837 19.4545 24.3659C20.9603 24.3348 21.711 23.809 21.7069 22.7882Z" fill="#800A7A"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M51.4855 28.6927L49.8106 27.1941C45.8064 24.1903 38.7835 25.0798 32.2675 26.9253C27.1736 28.3684 23.7941 30.6465 20.3917 31.8687C18.8951 32.3534 17.0192 32.0711 16.5261 30.6112C16.1058 29.3672 16.3209 28.3995 17.7664 27.4453C22.9105 24.0466 50.2582 17.2327 51.4855 28.6927Z" fill="#F1B301"/>
+            </svg>
+        </a>
+    </div>
+    <div class="h-right">
+        <a href="tel:998712005400" class="h-phone">
+            <svg width="14" height="14" viewBox="0 0 18 18" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.318 11.634C8.66952 10.6957 7.30434 9.33048 6.366 7.682L7.604 6.798C8.016 6.50378 8.14311 5.94807 7.9 5.504C7.12708 4.08968 6.66222 2.52779 6.536 0.921C6.49479 0.400934 6.0607 0 5.539 0H1.077C0.564126 0 0.134313 0.387801 0.082 0.898C0.027 1.428 0 1.962 0 2.5C0 11.06 6.94 18 15.5 18C16.038 18 16.572 17.973 17.102 17.918C17.6122 17.8657 18.0001 17.4359 18 16.923V12.461C18.0001 11.9393 17.5991 11.5052 17.079 11.464C15.4722 11.3378 13.9103 10.8729 12.496 10.1C12.0519 9.85689 11.4962 9.984 11.202 10.396L10.318 11.634Z" fill="#F1B301"/></svg>
+            (+99871) 200-54-00
+        </a>
+        <button class="cart-btn" id="cart" onclick="modal()" data-totalitems="0">
+            <svg width="15" height="18" viewBox="0 0 18 21" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 7V5C4 2.23858 6.23858 0 9 0C11.7614 0 14 2.23858 14 5V7H17C17.5523 7 18 7.44772 18 8V20C18 20.5523 17.5523 21 17 21H1C0.447715 21 0 20.5523 0 20V8C0 7.44772 0.447715 7 1 7H4ZM4 9H2V19H16V9H14V11H12V9H6V11H4V9ZM12 5V7H6V5C6 3.34315 7.34315 2 9 2C10.6569 2 12 3.34315 12 5Z" fill="currentColor"/></svg>
+            Savatcha
+            <span class="cart-badge" id="cart-badge">0</span>
+        </button>
+    </div>
+</header>
+
+<!-- PAGE -->
+<div class="o-page">
+
+    <div class="page-hero">
+        <h1>Buyurtma <span>berish</span></h1>
+        <p>Ma'lumotlaringizni to'ldiring va buyurtmangizni tasdiqlang</p>
+    </div>
+
+    <!-- FORM (LEFT) -->
+    <div>
+        <form id="second_form" method="post" onsubmit="event.preventDefault(); submitOrder();" class="f-sections">
+            {% csrf_token %}
+
+            <!-- Phone -->
+            <div class="f-card">
+                <div class="sec-label">&#128222; Telefon raqam</div>
+                <div class="f-group">
+                    <label class="f-label">Telefon raqamingizni kiriting</label>
+                    <div class="phone-wrap" id="phone-wrap">
+                        <input class="f-input" id="number-id" type="tel" name="phone" value="+998 " oninput="formatPhone(event)" placeholder="+998 XX XXX XX XX">
+                        <span class="phone-ok">&#10003;</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden sections -->
+            <div id="second_div">
+
+                <!-- Contact -->
+                <div class="f-card">
+                    <div class="sec-label">&#128100; Aloqa ma'lumotlari</div>
+                    <div class="f-group">
+                        <label class="f-label" for="first_name">Ism *</label>
+                        <input class="f-input" name="first_name" id="first_name" type="text" placeholder="Ismingizni kiriting">
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label" for="last_name">Familiya *</label>
+                        <input class="f-input" name="last_name" id="last_name" type="text" placeholder="Familiyangizni kiriting">
+                    </div>
+                    <div class="f-group">
+                        <label class="f-label" for="email">Elektron pochta *</label>
+                        <input class="f-input" name="email" id="email" type="email" placeholder="email@example.com">
+                    </div>
+                </div>
+
+                <!-- Payment -->
+                <div class="f-card">
+                    <div class="sec-label">&#128179; To'lov usuli *</div>
+                    <div class="pay-grid">
+                        <div class="pay-opt">
+                            <input type="radio" name="payment_type" id="pay1" value="1">
+                            <label for="pay1" class="pay-lbl">
+                                <div class="pay-lbl-top">
+                                    <span class="pay-icon">&#128181;</span>
+                                    <span class="pay-check"></span>
+                                </div>
+                                <div class="pay-title">Naqd pul</div>
+                                <div class="pay-desc">Kuryer kelganda yoki do'konda to'lash</div>
+                            </label>
+                        </div>
+                        <div class="pay-opt">
+                            <input type="radio" name="payment_type" id="pay2" value="2">
+                            <label for="pay2" class="pay-lbl">
+                                <div class="pay-lbl-top">
+                                    <span class="pay-icon">&#128179;</span>
+                                    <span class="pay-check"></span>
+                                </div>
+                                <div class="pay-title">Terminal</div>
+                                <div class="pay-desc">UzCard yoki Humo bank kartasi</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address + Submit -->
+                <div class="f-card">
+                    <div class="sec-label">&#128205; Manzil</div>
+                    <div class="f-group">
+                        <label class="f-label" for="address">To'liq manzil *</label>
+                        <textarea class="f-input" name="address" id="address" rows="3" placeholder="Ko'cha, uy raqami, kvartira..."></textarea>
+                    </div>
+                    <button class="sub-btn" id="order_btn" type="submit">
+                        &#10003;&nbsp; Buyurtmani tasdiqlash
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- SIDEBAR (RIGHT) -->
+    <div class="o-sidebar">
+        <div class="sum-card">
+            <div class="sum-head">
+                <span class="sum-head-title">Buyurtmalarim</span>
+                <span class="sum-cnt" id="sidebar-count">0 ta</span>
+            </div>
+            <div class="sum-items" id="sidebar-order-list">
+                <div class="sum-empty">Savatcha bo'sh</div>
+            </div>
+            <div class="sum-foot">
+                <div class="sum-total-row">
+                    <span class="sum-total-lbl">Jami summa</span>
+                    <span class="sum-total-price" id="total_price">0 <span>UZS</span></span>
+                </div>
+                <button class="clr-btn" onclick="delete_orders()">Savatchani tozalash</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+    <div class="modal-box" id="modal-box">
+        <div class="modal-drag"></div>
+        <div class="modal-head">
+            <span class="modal-title">&#128722; Savatcha</span>
+            <button class="modal-x" onclick="modal()">&#x2715;</button>
+        </div>
+        <div class="modal-body" id="order-list">
+            <!-- filled by JS -->
+        </div>
+        <div class="modal-foot">
+            <div class="modal-total-row">
+                <span class="modal-total-lbl">Jami:</span>
+                <span class="modal-total-amt" id="modal_total_price">0 <span>UZS</span></span>
+            </div>
+            <div class="modal-acts">
+                <button class="modal-clr" onclick="delete_orders()">&#128465; Tozalash</button>
+                <button class="modal-close-act" onclick="modal()">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="success-modal-overlay" id="success-modal">
+    <div class="success-modal-box">
+        <div class="success-checkmark">✓</div>
+        <div class="success-title">Buyurtma Muvaffaqiyatli!</div>
+        <div class="success-subtitle">Sizning buyurtmangiz qabul qilindi. Tez orada ishchilarimiz siz bilan bog'lanishadi.</div>
+        <div class="success-order-id">Buyurtma No: <span id="order-number">0</span></div>
+        <button class="success-btn" onclick="closeSuccessModal()">Asosiy sahifaga qaytish</button>
+    </div>
+</div>
+
+<script src="{% static 'maxway_users/js/app.js' %}"></script>
+<script>
+    // MODAL
+    function modal() {
+        var ov = document.getElementById('modal-overlay');
+        ov.classList.toggle('open');
+        document.body.style.overflow = ov.classList.contains('open') ? 'hidden' : '';
+    }
+    function overlayClick(e) {
+        if (e.target === document.getElementById('modal-overlay')) modal();
+    }
+
+    // CART
+    function getCart() {
+        var c = localStorage.getItem('cart');
+        return c ? JSON.parse(c) : {};
+    }
+    function saveCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartUI();
+    }
+    function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+
+    function updateCartUI() {
+        var cart = getCart();
+        var total = 0, totalItems = 0;
+        var modalHtml = '', sidebarHtml = '';
+
+        for (var key in cart) {
+            if (!cart.hasOwnProperty(key)) continue;
+            var item = cart[key];
+            total += item.price * item.qty;
+            totalItems += item.qty;
+            var img = item.image ? ('/media/' + item.image) : '';
+            var rowTotal = fmt(item.price * item.qty);
+            var unitPrice = fmt(item.price);
+
+            modalHtml += '<div class="modal-item">' +
+                '<img class="modal-img" src="' + img + '" alt="">' +
+                '<div class="modal-info">' +
+                    '<div class="modal-name">' + (item.name || '') + '</div>' +
+                    '<div class="modal-desc">' + (item.description || '') + '</div>' +
+                    '<div class="modal-meta">' +
+                        '<span class="modal-qty">' + item.qty + ' dona</span>' +
+                        '<span class="modal-price">' + rowTotal + ' UZS</span>' +
+                    '</div>' +
+                '</div></div>';
+
+            sidebarHtml += '<div class="sum-item">' +
+                '<img class="sum-img" src="' + img + '" alt="">' +
+                '<div class="sum-info">' +
+                    '<div class="sum-name">' + (item.name || '') + '</div>' +
+                    '<div class="sum-sub">' + item.qty + ' x ' + unitPrice + ' UZS</div>' +
+                '</div>' +
+                '<div class="sum-price">' + rowTotal + '</div>' +
+            '</div>';
+        }
+
+        var fmtTotal = fmt(total);
+
+        // Modal
+        var ol = document.getElementById('order-list');
+        if (ol) ol.innerHTML = totalItems === 0
+            ? '<div class="modal-empty"><p>Savatcha bo\'sh</p><small>Asosiy sahifadan mahsulot qo\'shing</small></div>'
+            : modalHtml;
+
+        // Modal total
+        var mt = document.getElementById('modal_total_price');
+        if (mt) mt.innerHTML = fmtTotal + ' <span>UZS</span>';
+
+        // Sidebar
+        var sl = document.getElementById('sidebar-order-list');
+        if (sl) sl.innerHTML = totalItems === 0
+            ? '<div class="sum-empty">Savatcha bo\'sh</div>'
+            : sidebarHtml;
+
+        // Totals
+        var tp = document.getElementById('total_price');
+        if (tp) tp.innerHTML = fmtTotal + ' <span>UZS</span>';
+        var hp = document.getElementById('home_price');
+        if (hp) hp.innerHTML = fmtTotal + ' <span>UZS</span>';
+
+        // Badges
+        var badge = document.getElementById('cart-badge');
+        if (badge) badge.textContent = totalItems;
+        var cartBtn = document.getElementById('cart');
+        if (cartBtn) cartBtn.setAttribute('data-totalitems', totalItems);
+        var sc = document.getElementById('sidebar-count');
+        if (sc) sc.textContent = totalItems + ' ta';
+    }
+
+    function cart_add(product_id) {
+        fetch(document.body.dataset.homeUrl + "?product_id=" + product_id)
+            .then(function(res) { return res.json(); })
+            .then(function(response) {
+                var cart = getCart();
+                var key = product_id + "";
+                if (!cart[key]) {
+                    cart[key] = { qty: 0, price: parseInt(response.price), image: response.image, name: response.name || response.title || '', description: response.description || '' };
+                }
+                cart[key].qty += 1;
+                saveCart(cart);
+                var cb = document.getElementById('cart');
+                if (cb) { cb.classList.add('shake'); setTimeout(function(){ cb.classList.remove('shake'); }, 400); }
+            })
+            .catch(function(err) { console.error('cart_add error', err); });
+    }
+
+    function delete_orders() {
+        localStorage.removeItem('cart');
+        updateCartUI();
+    }
+
+    function submitOrder() {
+         var cart = getCart();
+         if (Object.keys(cart).length === 0) { alert("Savatchangiz bo'sh!"); return; }
+         var phoneRaw = document.getElementById("number-id").value;
+         var firstName = document.getElementById("first_name").value.trim();
+         var lastName = document.getElementById("last_name").value.trim();
+         var email = document.getElementById("email").value.trim();
+         var address = document.getElementById("address").value.trim();
+         var phoneClean = phoneRaw.replace(/[\s\-\(\)\.]/g, '');
+         var paymentType = null;
+         var radios = document.getElementsByName('payment_type');
+         for (var i = 0; i < radios.length; i++) { if (radios[i].checked) { paymentType = radios[i].value; break; } }
+         if (!paymentType) { alert("Iltimos, to'lov usulini tanlang!"); return; }
+         if (!firstName || !lastName || !email || !address) { alert("Iltimos, barcha maydonlarni to'ldiring!"); return; }
+         document.getElementById("number-id").value = phoneClean;
+         var form = document.getElementById("second_form");
+         var ci = document.getElementById("cart_data_input");
+         if (!ci) { ci = document.createElement("input"); ci.type="hidden"; ci.name="cart_items"; ci.id="cart_data_input"; form.appendChild(ci); }
+         ci.value = JSON.stringify(cart);
+
+         // Submit form via AJAX to get response
+         var formData = new FormData(form);
+         fetch(document.body.dataset.orderUrl, {
+             method: 'POST',
+             body: formData
+         })
+         .then(function(response) { return response.json(); })
+         .then(function(data) {
+             if (data.success) {
+                 // Show success modal
+                 var modal = document.getElementById('success-modal');
+                 document.getElementById('order-number').textContent = data.order_id;
+                 modal.classList.add('show');
+                 document.body.style.overflow = 'hidden';
+
+                 // Clear cart
+                 delete_orders();
+
+                 // Reset form
+                 document.getElementById('first_name').value = '';
+                 document.getElementById('last_name').value = '';
+                 document.getElementById('email').value = '';
+                 document.getElementById('address').value = '';
+                 document.getElementById("number-id").value = '+998 ';
+                 var radioButtons = document.getElementsByName('payment_type');
+                 for (var i = 0; i < radioButtons.length; i++) { radioButtons[i].checked = false; }
+                 document.getElementById('second_div').style.display = 'none';
+                 document.getElementById('phone-wrap').classList.remove('verified');
+             } else if (data.error) {
+                 alert("Xatolik: " + data.error);
+             }
+         })
+         .catch(function(err) { alert("Buyurtma yuborishda xatolik: " + err); console.error(err); });
+     }
+
+     function closeSuccessModal() {
+         var modal = document.getElementById('success-modal');
+         modal.classList.remove('show');
+         document.body.style.overflow = '';
+         window.location.href = document.body.dataset.homeUrl;
+     }
+
+    document.addEventListener('DOMContentLoaded', function() { updateCartUI(); });
+</script>
+<script>
+    function formatPhone(e) {
+        var input = e.target;
+        var oldVal = input.value;
+        if (!oldVal.startsWith("+998")) { input.value = "+998 "; return; }
+        var numericStr = oldVal.substring(4).replace(/[^\d]/g, '').substring(0, 9);
+        var formatted = "+998";
+        if (numericStr.length > 0) formatted += " " + numericStr.substring(0, 2);
+        if (numericStr.length > 2) formatted += " " + numericStr.substring(2, 5);
+        if (numericStr.length > 5) formatted += " " + numericStr.substring(5, 7);
+        if (numericStr.length > 7) formatted += " " + numericStr.substring(7, 9);
+        input.value = formatted;
+        validate(numericStr);
+    }
+
+    function validate(numericStr) {
+        var secondDiv = document.getElementById('second_div');
+        var phoneWrap = document.getElementById('phone-wrap');
+        var inputtxt = document.getElementById("number-id");
+        if (numericStr && numericStr.length === 9) {
+            secondDiv.style.display = 'contents';
+            if (phoneWrap) phoneWrap.classList.add('verified');
+            var cleanPhone = inputtxt.value.replace(/[\s\-\(\)\.]/g, '');
+            fetch(document.body.dataset.orderUrl + "?phone=" + encodeURIComponent(cleanPhone), {
+                method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(response) {
+                if (!response.ok) return null;
+                var ct = response.headers.get("content-type");
+                if (ct && ct.indexOf("application/json") !== -1) return response.json();
+                return null;
+            })
+            .then(function(data) {
+                if (!data) return;
+                if (data.first_name) document.getElementById('first_name').value = data.first_name;
+                if (data.last_name) document.getElementById('last_name').value = data.last_name;
+                if (data.email) document.getElementById('email').value = data.email;
+                if (data.address) document.getElementById('address').value = data.address;
+            })
+            .catch(function(error) { console.log("Xatolik:", error); });
+        } else {
+            secondDiv.style.display = 'none';
+            if (phoneWrap) phoneWrap.classList.remove('verified');
+        }
+    }
+</script>
+</body>
+</html>
