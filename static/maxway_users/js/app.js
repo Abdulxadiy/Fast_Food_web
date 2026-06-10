@@ -24,14 +24,26 @@ function clearCartRow() {
   if (row) row.classList.toggle('clear')
 }
 
-let buttonMain = document.querySelector('button.main span')
-if (buttonMain) {
-  buttonMain.addEventListener('click', () => {
-    buttonMain.classList.toggle('show')
+const menuBtn = document.querySelector('button.main')
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => {
+    const span = menuBtn.querySelector('span')
     const menu = document.querySelector('.main__menu')
-    const btn = document.querySelector('button.main')
+    if (span) span.classList.toggle('show')
     if (menu) menu.classList.toggle('show')
-    if (btn) btn.classList.toggle('show')
+    menuBtn.classList.toggle('show')
+  })
+}
+
+const mobFiltBtn = document.querySelector('.mobFilt')
+if (mobFiltBtn) {
+  mobFiltBtn.addEventListener('click', () => {
+    const filter = document.querySelector('.content .filter')
+    if (filter) {
+      filter.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      const firstBtn = filter.querySelector('button')
+      if (firstBtn) firstBtn.focus()
+    }
   })
 }
 

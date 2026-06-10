@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://new-dev.site",
+    "https://www.new-dev.site",
+]
 
 # Application definition
 
