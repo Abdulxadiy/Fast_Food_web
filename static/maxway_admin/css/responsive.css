@@ -1,0 +1,49 @@
+@media (max-width: 991px) {
+    .main-content {
+        padding-top: 20px;
+    }
+
+    .overview-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .overview-wrap .au-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .section__content--p30 {
+        padding: 0 16px;
+    }
+
+    .table-data3 img {
+        width: 72px !important;
+        height: 72px !important;
+        object-fit: cover;
+    }
+
+    .table-data-feature {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 575px) {
+    .title-1,
+    .title-2 {
+        font-size: 20px;
+    }
+
+    .overview-item {
+        margin-bottom: 12px;
+    }
+
+    .table-data3 td,
+    .table-data3 th {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+}

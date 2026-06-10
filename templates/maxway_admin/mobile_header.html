@@ -1,0 +1,55 @@
+{% load static %}
+<!-- HEADER MOBILE-->
+<header class="header-mobile d-block d-lg-none">
+    <div class="header-mobile__bar">
+        <div class="container-fluid">
+            <div class="header-mobile-inner">
+                <a class="logo" href="{% url 'main_page' %}">
+                    <img src="{% static 'maxway_admin/images/icon/logo.png' %}" alt="MaxWay Admin" />
+                </a>
+                <button class="hamburger hamburger--slider" type="button">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar-mobile">
+        <div class="container-fluid">
+            <ul class="navbar-mobile__list list-unstyled">
+                <li>
+                    <a href="{% url 'main_page' %}">
+                        <i class="fas fa-tachometer-alt"></i>Main Page</a>
+                </li>
+                <li>
+                    <a href="{% url 'category_list' %}">
+                        <i class="fas fa-chart-bar"></i>Categories</a>
+                </li>
+                <li>
+                    <a href="{% url 'product_list' %}">
+                        <i class="fas fa-chart-bar"></i>Products</a>
+                </li>
+                <li>
+                    <a href="{% url 'user_list' %}">
+                        <i class="fas fa-chart-bar"></i>Costumers</a>
+                </li>
+                <li>
+                    <a href="{% url 'order_list' %}">
+                        <i class="fas fa-chart-bar"></i>Orders</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'profile' %}">
+                        <i class="zmdi zmdi-account"></i>Profile</a>
+                </li>
+                <li>
+                    <a href="{% url 'logout_page' %}">
+                        <i class="zmdi zmdi-power"></i>Logout</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
+<!-- END HEADER MOBILE-->

@@ -325,12 +325,25 @@
         }
         .success-btn:hover { background: #ffc929; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(241,179,1,0.35); }
 
+        @media (max-width: 767px) {
+            .o-header { padding: 0 16px; height: 56px; }
+            .cart-btn { padding: 8px 14px; font-size: 13px; }
+            .o-page { padding: 24px 16px 40px; gap: 20px; }
+            .o-sidebar { position: static !important; top: auto !important; }
+        }
+
         @media (max-width: 480px) {
-            .o-header { padding: 0 16px; }
             .o-page { padding: 24px 16px 40px; }
             .f-card { padding: 18px; }
             .success-modal-box { padding: 32px 20px; }
             .success-title { font-size: 22px; }
+            .h-phone { font-size: 0; gap: 0; }
+            .cart-btn {
+                font-size: 0;
+                gap: 6px;
+                padding: 10px 12px;
+            }
+            .cart-btn .cart-badge { font-size: 11px; }
         }
     </style>
 </head>

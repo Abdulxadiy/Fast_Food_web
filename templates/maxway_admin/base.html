@@ -33,11 +33,13 @@
 
         <!-- Main CSS-->
         <link href="{% static 'maxway_admin/css/theme.css' %}" rel="stylesheet" media="all">
+        <link href="{% static 'maxway_admin/css/responsive.css' %}" rel="stylesheet" media="all">
 
     </head>
 
     <body class="animsition">
         <div class="page-wrapper">
+            {% include 'maxway_admin/mobile_header.html' %}
             {% include 'maxway_admin/sidebar.html' %}
             {% block content %}{% endblock %}
         </div>

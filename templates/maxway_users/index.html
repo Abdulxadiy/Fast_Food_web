@@ -846,6 +846,59 @@
         .modal {
             display: none !important;
         }
+
+        /* MOBILE LAYOUT */
+        @media (max-width: 767px) {
+            .container {
+                max-width: 100% !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+
+            .header {
+                margin-bottom: 24px !important;
+            }
+
+            .col-6 {
+                flex-basis: 100% !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            .slide .row {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            .fixed--icon.cart {
+                bottom: 20px !important;
+                right: 16px !important;
+                min-width: 140px !important;
+                padding: 10px 18px !important;
+            }
+
+            .content .filter {
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 8px !important;
+            }
+
+            .content .filter button {
+                flex-shrink: 0 !important;
+            }
+
+            .mobMenu__content {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .fixed--icon.cart {
+                right: 12px !important;
+                bottom: 16px !important;
+            }
+        }
     </style>
 
 </head>
@@ -1446,6 +1499,7 @@
         </div>
     </div>
 
+    <script src="{% static 'maxway_users/js/app.js' %}"></script>
     <script src="{% static 'maxway_admin/vendor/jquery-3.2.1.min.js' %}"></script>
     <script>
         /* ---- Modal ochish/yopish ---- */
