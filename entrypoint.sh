@@ -29,6 +29,6 @@ python manage.py init_superuser
 
 exec gunicorn maxway.wsgi:application \
   --bind 0.0.0.0:8000 \
-  --workers 2 \
+  --workers 3 \
   --timeout 300 \
   --log-level info
