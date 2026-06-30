@@ -20,8 +20,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
       - media_data:/app/media
+      - static_data:/app/staticfiles
     depends_on:
       db:
         condition: service_healthy
@@ -39,3 +39,4 @@ services:
 volumes:
   postgres_data:
   media_data:
+  static_data:
